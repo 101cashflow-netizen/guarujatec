@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Guarujá Tec">
+  <rect width="64" height="64" rx="12" fill="#0A0A0A"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="11" fill="none" stroke="#F5B700" stroke-width="1.5"/>
+  <text x="32" y="42" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" fill="#F5B700">GT</text>
+</svg>
