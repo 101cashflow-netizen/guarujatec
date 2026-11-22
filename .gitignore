@@ -1,3 +1,6 @@
+# Cloudflare
+.wrangler/
+
 # AI Tools
 .claude
 .gemini

@@ -3,7 +3,7 @@
 
   var WA_NUMBER = "5513981343637";
   var WA_DEFAULT =
-    "Olá! Conheci a Guarujá Tec pelo site e gostaria de saber como posso melhorar a presença digital da minha empresa.";
+    "Olá Jamilson! Conheci a Guarujá Tec pelo site e gostaria de saber como atrair mais clientes para o meu negócio.";
 
   function waUrl(message) {
     return (
@@ -89,7 +89,7 @@
         helpCta.classList.add("is-visible");
       }
       if (helpCtaText) {
-        helpCtaText.textContent = "Falar com um especialista";
+        helpCtaText.textContent = "Falar com o Jamilson";
       }
     });
   });
@@ -132,13 +132,13 @@
       }
 
       var lines = [
-        "Olá! Conheci a Guarujá Tec pelo site e gostaria de solicitar um orçamento.",
+        "Olá Jamilson! Conheci a Guarujá Tec pelo site e gostaria de pedir um orçamento grátis.",
         "",
         "Nome: " + name,
         company ? "Empresa: " + company : "",
         "WhatsApp: " + phone,
-        "Serviço de interesse: " + service,
-        desc ? "Descrição do projeto: " + desc : "",
+        "O que preciso: " + service,
+        desc ? "Detalhes: " + desc : "",
       ].filter(Boolean);
 
       window.open(waUrl(lines.join("\n")), "_blank", "noopener,noreferrer");
