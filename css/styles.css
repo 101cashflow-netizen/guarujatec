@@ -2149,6 +2149,98 @@ h2 {
   transform: scale(1.18);
 }
 
+/* ==========================================================================
+   BOTÃO FLUTUANTE DE ATENDIMENTO (SMART FALLBACK)
+   ========================================================================== */
+.floating-assistant {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999990;
+  display: flex;
+  align-items: center;
+}
+
+.floating-assistant-btn {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold, #f5b800) 0%, #1a1608 100%);
+  color: #0b0c0e;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 20px rgba(245, 184, 0, 0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-decoration: none;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.floating-assistant-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 28px rgba(245, 184, 0, 0.45);
+  color: #000;
+}
+
+.floating-assistant-btn:active {
+  transform: scale(0.95);
+}
+
+.floating-badge-live {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 14px;
+  height: 14px;
+  background-color: #10b981;
+  border: 2px solid #0e1014;
+  border-radius: 50%;
+}
+
+.floating-tooltip {
+  position: absolute;
+  right: 72px;
+  background: #14161a;
+  color: #ffffff;
+  border: 1px solid rgba(245, 184, 0, 0.3);
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.floating-tooltip .pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px #10b981;
+}
+
+@media (max-width: 640px) {
+  .floating-assistant {
+    bottom: 20px;
+    right: 20px;
+  }
+  .floating-tooltip {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

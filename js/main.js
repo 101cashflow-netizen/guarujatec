@@ -174,9 +174,43 @@
   function openAIAgent() {
     var btn = document.getElementById("ai-agent-btn");
     var container = document.getElementById("ai-agent-frame-container");
-    if (btn && container && !container.classList.contains("active")) {
-      btn.click();
+    if (btn && container) {
+      if (!container.classList.contains("active")) {
+        btn.click();
+      }
+    } else {
+      // Fallback: se o widget do agente não estiver carregado (ex: mobile), abre o WhatsApp
+      window.open(
+        "https://wa.me/5513981343637?text=" + encodeURIComponent("Olá! Vim pelo site da Guarujá Tec e gostaria de atendimento sobre tecnologia e IA."),
+        "_blank",
+        "noopener,noreferrer"
+      );
     }
+  }
+
+  // Sincronização do Botão Flutuante de Fallback com o Widget do Agente IA
+  var floatingAssistant = document.getElementById("guaruja-floating-assistant");
+  var floatingContactBtn = document.getElementById("floating-contact-btn");
+
+  // Se o widget nativo do agente carregar (localhost / servidor ativo), esconde o fallback
+  var checkWidgetInterval = setInterval(function () {
+    var agentBtn = document.getElementById("ai-agent-btn");
+    if (agentBtn) {
+      if (floatingAssistant) floatingAssistant.style.display = "none";
+      clearInterval(checkWidgetInterval);
+    }
+  }, 250);
+  setTimeout(function () { clearInterval(checkWidgetInterval); }, 5000);
+
+  // Se o botão de fallback for clicado, tenta abrir o agente primeiro se estiver presente
+  if (floatingContactBtn) {
+    floatingContactBtn.addEventListener("click", function (e) {
+      var agentBtn = document.getElementById("ai-agent-btn");
+      if (agentBtn) {
+        e.preventDefault();
+        openAIAgent();
+      }
+    });
   }
 
   // Qualquer link ou botão com href="#chat" ou data-open-chat abre o Agente de IA

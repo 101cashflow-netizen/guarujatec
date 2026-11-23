@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=20261123-3">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -758,10 +758,26 @@
     </div>
   </footer>
 
-  <!-- Agente IA - Widget de Atendimento -->
+  <!-- Botão Flutuante de Atendimento Guarujá Tec (Fallback Inteligente para Mobile e Produção) -->
+  <aside id="guaruja-floating-assistant" class="floating-assistant" aria-label="Atendimento Online Guarujá Tec">
+    <a href="https://wa.me/5513981343637?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Guaruj%C3%A1%20Tec%20e%20gostaria%20de%20atendimento%20sobre%20tecnologia%20e%20IA." target="_blank" rel="noopener noreferrer" class="floating-assistant-btn" id="floating-contact-btn" title="Falar com a Guarujá Tec" aria-label="Falar com a Guarujá Tec no WhatsApp">
+      <span class="floating-badge-live" aria-hidden="true"></span>
+      <div class="floating-tooltip">
+        <span class="pulse-dot"></span>
+        <span>Atendimento Online • Fale Conosco</span>
+      </div>
+      <div class="floating-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+    </a>
+  </aside>
+
+  <!-- Agente IA - Widget de Atendimento (carregado localmente quando disponível) -->
   <script src="http://localhost:3000/widget.js" data-agent="ag_guaruja_tec_acso0" defer></script>
 
-  <script src="js/portfolio.js" defer></script>
-  <script src="js/main.js" defer></script>
+  <script src="js/portfolio.js?v=20261123-3" defer></script>
+  <script src="js/main.js?v=20261123-3" defer></script>
 </body>
 </html>

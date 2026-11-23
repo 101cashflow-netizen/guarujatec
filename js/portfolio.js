@@ -2,6 +2,8 @@
   "use strict";
 
   var STORAGE_KEY = "guarujatec_portfolio";
+  var VERSION_KEY = "guarujatec_portfolio_version";
+  var CURRENT_VERSION = "20261123_v3";
 
   var DEFAULT_PROJECTS = [
     {
@@ -87,6 +89,15 @@
   function getProjects() {
     var projects = DEFAULT_PROJECTS;
     try {
+      var savedVersion = localStorage.getItem(VERSION_KEY);
+      if (savedVersion !== CURRENT_VERSION) {
+        // Nova versão: limpa cache legado do celular/navegador e re-semeia dados mais recentes
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_PROJECTS));
+        return DEFAULT_PROJECTS;
+      }
+
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         var parsed = JSON.parse(stored);
