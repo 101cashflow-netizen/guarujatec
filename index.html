@@ -438,8 +438,8 @@
       </div>
     </section>
 
-    <!-- Seção Portfólio / Vitrine -->
-    <section class="section section-alt" id="portfolio">
+    <!-- Seção Portfólio / Vitrine em Carrossel Horizontal -->
+    <section class="section section-alt" id="portfolio" aria-roledescription="carousel" aria-label="Vitrine de Projetos da Guarujá Tec">
       <div class="container">
         <div class="section-head reveal">
           <p class="section-kicker">Vitrine de Projetos</p>
@@ -456,18 +456,24 @@
           <button class="filter-btn" type="button" data-filter="automacao">Automação &amp; IA</button>
         </div>
 
-        <!-- Grid de Projetos da Vitrine -->
-        <div class="portfolio-grid" id="portfolio-grid">
-          <!-- Renderizado dinamicamente via js/portfolio.js -->
+        <!-- Carrossel Horizontal de Projetos -->
+        <div class="portfolio-carousel-wrapper reveal">
+          <button type="button" class="portfolio-nav-btn prev" id="portfolio-prev" aria-label="Projeto anterior" title="Anterior">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          <div class="portfolio-track" id="portfolio-track" tabindex="0" role="region" aria-label="Projetos em carrossel">
+            <!-- Renderizado dinamicamente via js/portfolio.js -->
+          </div>
+
+          <button type="button" class="portfolio-nav-btn next" id="portfolio-next" aria-label="Próximo projeto" title="Próximo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
         </div>
 
-        <!-- Acesso ao Painel Adm -->
-        <div class="portfolio-admin-bar reveal">
-          <span>Área do Administrador: gerencie os projetos que aparecem nesta vitrine.</span>
-          <a class="btn btn-outline btn-sm" href="admin.html" target="_blank" rel="noopener noreferrer">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            Abrir Painel Administrativo
-          </a>
+        <!-- Dica de navegação / arraste -->
+        <div class="portfolio-drag-hint">
+          <span>👈 Deslize ou use as setas para navegar nos projetos 👉</span>
         </div>
       </div>
     </section>
@@ -731,7 +737,15 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; <span id="year">2026</span> Guarujá Tec — Digital IA Marketing. Todos os direitos reservados.</p>
+        <p>
+          &copy; <span id="year">2026</span> Guarujá Tec — Digital IA Marketing. Todos os direitos reservados.
+          <a href="admin.html" class="footer-admin-lock" target="_blank" rel="noopener noreferrer" title="Acesso Restrito" aria-label="Painel Administrativo">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </a>
+        </p>
         <p>Sites, perfil no Google e atendimento no WhatsApp em Guarujá e Baixada Santista.</p>
       </div>
     </div>

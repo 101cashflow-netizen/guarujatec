@@ -1,6 +1,7 @@
 [
   {
     "id": "proj-1",
+    "order": 1,
     "title": "Mecamatic CRM & Gestão Web",
     "category": "sistemas",
     "categoryLabel": "Sistema Web",
@@ -13,6 +14,7 @@
   },
   {
     "id": "proj-2",
+    "order": 2,
     "title": "FitFuel E-commerce & Suplementos",
     "category": "ecommerce",
     "categoryLabel": "Loja Virtual",
@@ -25,6 +27,7 @@
   },
   {
     "id": "proj-3",
+    "order": 3,
     "title": "Naty Gomes Personal Trainer",
     "category": "sites",
     "categoryLabel": "Site Profissional",
@@ -37,6 +40,7 @@
   },
   {
     "id": "proj-4",
+    "order": 4,
     "title": "Agente IA Atendimento 24h WhatsApp",
     "category": "automacao",
     "categoryLabel": "Automação & IA",
@@ -49,6 +53,7 @@
   },
   {
     "id": "proj-5",
+    "order": 5,
     "title": "DJ Cell Imports & Acessórios",
     "category": "ecommerce",
     "categoryLabel": "Loja Virtual",
@@ -61,6 +66,7 @@
   },
   {
     "id": "proj-6",
+    "order": 6,
     "title": "Clínica Odonto Santos & Guarujá",
     "category": "sites",
     "categoryLabel": "Site Profissional",

@@ -8,6 +8,7 @@
   var DEFAULT_PROJECTS = [
     {
       id: "proj-1",
+      order: 1,
       title: "Mecamatic CRM & Gestão Web",
       category: "sistemas",
       categoryLabel: "Sistema Web",
@@ -20,6 +21,7 @@
     },
     {
       id: "proj-2",
+      order: 2,
       title: "FitFuel E-commerce & Suplementos",
       category: "ecommerce",
       categoryLabel: "Loja Virtual",
@@ -32,6 +34,7 @@
     },
     {
       id: "proj-3",
+      order: 3,
       title: "Naty Gomes Personal Trainer",
       category: "sites",
       categoryLabel: "Site Profissional",
@@ -44,6 +47,7 @@
     },
     {
       id: "proj-4",
+      order: 4,
       title: "Agente IA Atendimento 24h WhatsApp",
       category: "automacao",
       categoryLabel: "Automação & IA",
@@ -56,6 +60,7 @@
     },
     {
       id: "proj-5",
+      order: 5,
       title: "DJ Cell Imports & Acessórios",
       category: "ecommerce",
       categoryLabel: "Loja Virtual",
@@ -68,6 +73,7 @@
     },
     {
       id: "proj-6",
+      order: 6,
       title: "Clínica Odonto Santos & Guarujá",
       category: "sites",
       categoryLabel: "Site Profissional",
@@ -132,29 +138,79 @@
 
   // --- GERENCIAMENTO DE DADOS ---
   function loadProjects() {
+    var projects = DEFAULT_PROJECTS;
     try {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         var parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          projects = parsed;
         }
       }
     } catch (e) {
       console.warn("Erro ao ler localStorage:", e);
     }
-    saveProjects(DEFAULT_PROJECTS);
-    return DEFAULT_PROJECTS;
+
+    // Normaliza os números de ordem
+    projects.forEach(function (p, index) {
+      if (p.order === undefined || p.order === null || isNaN(Number(p.order))) {
+        p.order = index + 1;
+      } else {
+        p.order = Number(p.order);
+      }
+    });
+
+    // Ordena de forma ascendente
+    projects.sort(function (a, b) {
+      return (a.order || 999) - (b.order || 999);
+    });
+
+    return projects;
   }
 
   function saveProjects(projects) {
     try {
+      // Re-ordena e re-numera sequencialmente antes de persistir
+      projects.sort(function (a, b) {
+        return (Number(a.order) || 999) - (Number(b.order) || 999);
+      });
+      projects.forEach(function (p, i) {
+        p.order = i + 1;
+      });
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
       updateStats(projects);
       renderProjectsList(projects);
     } catch (e) {
       alert("Erro ao salvar no navegador: " + e.message);
     }
+  }
+
+  function moveProjectOrder(id, direction) {
+    var projects = loadProjects();
+    var idx = -1;
+    for (var i = 0; i < projects.length; i++) {
+      if (projects[i].id === id) {
+        idx = i;
+        break;
+      }
+    }
+    if (idx === -1) return;
+
+    var targetIdx = idx + direction;
+    if (targetIdx < 0 || targetIdx >= projects.length) return;
+
+    // Troca as posições no array
+    var temp = projects[idx];
+    projects[idx] = projects[targetIdx];
+    projects[targetIdx] = temp;
+
+    // Atualiza os números de ordem sequencialmente
+    projects.forEach(function (p, i) {
+      p.order = i + 1;
+    });
+
+    saveProjects(projects);
   }
 
   // --- RENDERIZAÇÃO DA LISTA ---
@@ -196,7 +252,7 @@
     }
 
     var html = "";
-    filtered.forEach(function (proj) {
+    filtered.forEach(function (proj, index) {
       var isActive = proj.active !== false;
       var statusClass = isActive ? "status-active" : "status-inactive";
       var statusText = isActive ? "Visível na Vitrine" : "Oculto";
@@ -209,10 +265,14 @@
         });
       }
 
+      var isFirst = index === 0;
+      var isLast = index === filtered.length - 1;
+
       html +=
         '<div class="' + cardClass + '" data-id="' + escapeHtml(proj.id) + '">' +
         '  <div class="admin-card-thumb">' +
         '    <img src="' + escapeHtml(proj.image) + '" alt="' + escapeHtml(proj.title) + '" loading="lazy" onerror="this.src=\'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80\'">' +
+        '    <span class="admin-card-order" title="Ordem no Carrossel">#' + (proj.order || (index + 1)) + '</span>' +
         '    <span class="admin-card-status ' + statusClass + '">' + statusText + '</span>' +
         '  </div>' +
         '  <div class="admin-card-body">' +
@@ -227,6 +287,12 @@
         '        <span>' + (isActive ? "Ativo" : "Oculto") + '</span>' +
         '      </label>' +
         '      <div class="card-actions">' +
+        '        <button class="btn-icon btn-order-up" data-id="' + escapeHtml(proj.id) + '" title="Mover para cima (exibir antes no carrossel)" ' + (isFirst ? "disabled style='opacity:0.3;cursor:not-allowed'" : "") + '>' +
+        '          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 15l-6-6-6 6"/></svg>' +
+        '        </button>' +
+        '        <button class="btn-icon btn-order-down" data-id="' + escapeHtml(proj.id) + '" title="Mover para baixo (exibir depois no carrossel)" ' + (isLast ? "disabled style='opacity:0.3;cursor:not-allowed'" : "") + '>' +
+        '          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>' +
+        '        </button>' +
         '        <button class="btn-icon btn-edit" data-id="' + escapeHtml(proj.id) + '" title="Editar Projeto">' +
         '          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
         '        </button>' +
@@ -244,6 +310,22 @@
   }
 
   function bindCardEvents() {
+    // Reordenar para cima
+    document.querySelectorAll(".btn-order-up").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = this.getAttribute("data-id");
+        moveProjectOrder(id, -1);
+      });
+    });
+
+    // Reordenar para baixo
+    document.querySelectorAll(".btn-order-down").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = this.getAttribute("data-id");
+        moveProjectOrder(id, 1);
+      });
+    });
+
     // Toggle active
     document.querySelectorAll(".toggle-active").forEach(function (toggle) {
       toggle.addEventListener("change", function () {
@@ -292,6 +374,8 @@
     form.reset();
     document.getElementById("proj-id").value = "";
     document.getElementById("proj-active").checked = true;
+    var projects = loadProjects();
+    document.getElementById("proj-order").value = projects.length + 1;
     modalTitle.textContent = "Adicionar Novo Projeto";
     updateImagePreview("");
     modal.style.display = "flex";
@@ -303,6 +387,7 @@
     if (!p) return;
 
     document.getElementById("proj-id").value = p.id;
+    document.getElementById("proj-order").value = p.order || 1;
     document.getElementById("proj-title").value = p.title || "";
     document.getElementById("proj-category").value = p.category || "sites";
     document.getElementById("proj-desc").value = p.description || "";
@@ -374,6 +459,9 @@
       e.preventDefault();
 
       var id = document.getElementById("proj-id").value;
+      var order = parseInt(document.getElementById("proj-order").value, 10);
+      if (isNaN(order) || order < 1) order = 1;
+
       var title = document.getElementById("proj-title").value.trim();
       var category = document.getElementById("proj-category").value;
       var desc = document.getElementById("proj-desc").value.trim();
@@ -393,6 +481,7 @@
         // Atualizar existente
         var existing = projects.find(function (p) { return p.id === id; });
         if (existing) {
+          existing.order = order;
           existing.title = title;
           existing.category = category;
           existing.categoryLabel = categoryLabels[category] || category;
@@ -406,6 +495,7 @@
         // Adicionar novo
         var newProj = {
           id: "proj-" + Date.now(),
+          order: order,
           title: title,
           category: category,
           categoryLabel: categoryLabels[category] || category,
@@ -416,7 +506,7 @@
           active: active,
           featured: false
         };
-        projects.unshift(newProj);
+        projects.push(newProj);
       }
 
       saveProjects(projects);
@@ -485,7 +575,7 @@
     var btnReset = document.getElementById("btn-reset-default");
     if (btnReset) {
       btnReset.addEventListener("click", function () {
-        if (confirm("Tem certeza que deseja restaurar os 6 projetos originais de demonstração da Guarujá Tec?")) {
+        if (confirm("Tem certeza que deseja restaurar os 6 projetos originais da Guarujá Tec?")) {
           saveProjects(DEFAULT_PROJECTS);
           alert("Vitrine restaurada para o padrão com sucesso!");
         }

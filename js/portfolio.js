@@ -6,6 +6,7 @@
   var DEFAULT_PROJECTS = [
     {
       id: "proj-1",
+      order: 1,
       title: "Mecamatic CRM & Gestão Web",
       category: "sistemas",
       categoryLabel: "Sistema Web",
@@ -18,6 +19,7 @@
     },
     {
       id: "proj-2",
+      order: 2,
       title: "FitFuel E-commerce & Suplementos",
       category: "ecommerce",
       categoryLabel: "Loja Virtual",
@@ -30,6 +32,7 @@
     },
     {
       id: "proj-3",
+      order: 3,
       title: "Naty Gomes Personal Trainer",
       category: "sites",
       categoryLabel: "Site Profissional",
@@ -42,6 +45,7 @@
     },
     {
       id: "proj-4",
+      order: 4,
       title: "Agente IA Atendimento 24h WhatsApp",
       category: "automacao",
       categoryLabel: "Automação & IA",
@@ -54,6 +58,7 @@
     },
     {
       id: "proj-5",
+      order: 5,
       title: "DJ Cell Imports & Acessórios",
       category: "ecommerce",
       categoryLabel: "Loja Virtual",
@@ -66,6 +71,7 @@
     },
     {
       id: "proj-6",
+      order: 6,
       title: "Clínica Odonto Santos & Guarujá",
       category: "sites",
       categoryLabel: "Site Profissional",
@@ -79,32 +85,46 @@
   ];
 
   function getProjects() {
+    var projects = DEFAULT_PROJECTS;
     try {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         var parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          projects = parsed;
         }
       }
     } catch (e) {
       console.warn("Erro ao ler localStorage do portfólio:", e);
     }
-    // Salva o padrão no localStorage
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_PROJECTS));
-    } catch (e) {}
-    return DEFAULT_PROJECTS;
+
+    // Garante que cada projeto tenha um campo de ordem numérico
+    projects.forEach(function (p, index) {
+      if (p.order === undefined || p.order === null || isNaN(Number(p.order))) {
+        p.order = index + 1;
+      } else {
+        p.order = Number(p.order);
+      }
+    });
+
+    // Ordena de forma ascendente pela ordem definida
+    projects.sort(function (a, b) {
+      return (a.order || 999) - (b.order || 999);
+    });
+
+    return projects;
   }
 
   var currentFilter = "all";
+  var autoPlayTimer = null;
+  var isPointerInteracting = false;
 
   function renderPortfolio() {
-    var grid = document.getElementById("portfolio-grid");
-    if (!grid) return;
+    var track = document.getElementById("portfolio-track") || document.getElementById("portfolio-grid");
+    if (!track) return;
 
     var projects = getProjects();
-    // Filtra apenas projetos com active !== false
+    // Filtra apenas projetos ativos (active !== false)
     var activeProjects = projects.filter(function (p) {
       return p.active !== false;
     });
@@ -116,18 +136,20 @@
     }
 
     if (activeProjects.length === 0) {
-      grid.innerHTML =
+      track.innerHTML =
         '<div class="portfolio-empty">' +
         '<div class="empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>' +
-        '<h3>Nenhum projeto exibido nesta categoria</h3>' +
-        '<p>Selecione outra categoria ou acesse o painel administrativo para adicionar novos projetos à vitrine.</p>' +
-        '<a href="admin.html" class="btn btn-outline btn-sm">Abrir Painel Administrativo</a>' +
+        '<h3>Nenhum projeto nesta categoria no momento</h3>' +
+        '<p>Selecione outra categoria ou entre em contato para solicitar uma demonstração sob medida para sua empresa.</p>' +
+        '<a href="#contato" class="btn btn-gold btn-sm">Solicitar Demonstração</a>' +
         '</div>';
       return;
     }
 
+    var total = activeProjects.length;
     var html = "";
-    activeProjects.forEach(function (proj) {
+
+    activeProjects.forEach(function (proj, idx) {
       var tagsHtml = "";
       if (Array.isArray(proj.tags)) {
         proj.tags.forEach(function (t) {
@@ -136,12 +158,13 @@
       }
 
       var linkHref = proj.link && proj.link.trim() !== "" ? proj.link : "#contato";
-      var linkTarget = proj.link && proj.link.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : "";
+      var isHttp = linkHref.startsWith("http");
       var isWa = linkHref.indexOf("wa.me") !== -1 || linkHref === "#contato";
-      var waData = isWa ? ' data-wa data-wa-msg="Olá! Vi o projeto ' + escapeHtml(proj.title) + ' no portfólio da Guarujá Tec e gostaria de um projeto similar para minha empresa."' : "";
+      var linkTarget = isHttp ? ' target="_blank" rel="noopener noreferrer"' : "";
+      var waData = isWa ? ' data-wa data-wa-msg="Olá! Vi o projeto ' + escapeHtml(proj.title) + ' na vitrine da Guarujá Tec e gostaria de uma solução similar para minha empresa."' : "";
 
       html +=
-        '<article class="portfolio-card reveal is-visible" data-category="' + escapeHtml(proj.category) + '">' +
+        '<article class="portfolio-card is-visible" tabindex="0" role="group" aria-roledescription="slide" aria-label="Projeto ' + (idx + 1) + ' de ' + total + ': ' + escapeHtml(proj.title) + '" data-link="' + escapeHtml(linkHref) + '" data-is-http="' + (isHttp ? 'true' : 'false') + '" data-category="' + escapeHtml(proj.category) + '"' + waData + '>' +
         '  <div class="portfolio-thumb">' +
         '    <img src="' + escapeHtml(proj.image) + '" alt="' + escapeHtml(proj.title) + '" loading="lazy" onerror="this.src=\'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80\'">' +
         '    <span class="portfolio-badge">' + escapeHtml(proj.categoryLabel || proj.category) + '</span>' +
@@ -160,7 +183,174 @@
         '</article>';
     });
 
-    grid.innerHTML = html;
+    track.innerHTML = html;
+    bindCardClicks(track);
+  }
+
+  function bindCardClicks(track) {
+    var cards = track.querySelectorAll(".portfolio-card");
+    cards.forEach(function (card) {
+      // Ao clicar em qualquer área do card (exceto se já clicou diretamente no <a> interno)
+      card.addEventListener("click", function (e) {
+        if (card.dataset.dragged === "true") {
+          return; // Não abre se o usuário estava arrastando o carrossel
+        }
+        if (e.target.closest("a")) {
+          return; // Deixa o link nativo agir normalmente
+        }
+
+        var link = card.getAttribute("data-link");
+        var isHttp = card.getAttribute("data-is-http") === "true";
+        if (card.hasAttribute("data-wa")) {
+          var msg = card.getAttribute("data-wa-msg") || "Olá! Gostaria de um orçamento com a Guarujá Tec.";
+          window.open("https://wa.me/5513981343637?text=" + encodeURIComponent(msg), "_blank", "noopener,noreferrer");
+        } else if (isHttp) {
+          window.open(link, "_blank", "noopener,noreferrer");
+        } else if (link) {
+          window.location.hash = link;
+        }
+      });
+
+      // Acessibilidade: tecla Enter ativa o card
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          card.click();
+        }
+      });
+    });
+  }
+
+  function initCarouselControls() {
+    var track = document.getElementById("portfolio-track");
+    var btnPrev = document.getElementById("portfolio-prev");
+    var btnNext = document.getElementById("portfolio-next");
+
+    if (!track) return;
+
+    function getScrollAmount() {
+      var firstCard = track.querySelector(".portfolio-card");
+      return firstCard ? firstCard.offsetWidth + 24 : 380;
+    }
+
+    if (btnPrev) {
+      btnPrev.addEventListener("click", function () {
+        var amount = getScrollAmount();
+        if (track.scrollLeft <= 10) {
+          track.scrollTo({ left: track.scrollWidth, behavior: "smooth" });
+        } else {
+          track.scrollBy({ left: -amount, behavior: "smooth" });
+        }
+        resetAutoPlay();
+      });
+    }
+
+    if (btnNext) {
+      btnNext.addEventListener("click", function () {
+        var amount = getScrollAmount();
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        if (track.scrollLeft >= maxScroll - 15) {
+          track.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          track.scrollBy({ left: amount, behavior: "smooth" });
+        }
+        resetAutoPlay();
+      });
+    }
+
+    // Suporte a arrastar com o mouse no Desktop (Drag-to-scroll)
+    var isDown = false;
+    var startX = 0;
+    var scrollLeft = 0;
+    var draggedThreshold = 6;
+    var dragDist = 0;
+
+    track.addEventListener("mousedown", function (e) {
+      // Ignora clique em botões internos
+      if (e.target.closest("button") || e.target.closest("a")) return;
+      isDown = true;
+      track.classList.add("is-dragging");
+      startX = e.pageX - track.offsetLeft;
+      scrollLeft = track.scrollLeft;
+      dragDist = 0;
+    });
+
+    window.addEventListener("mouseup", function () {
+      if (!isDown) return;
+      isDown = false;
+      track.classList.remove("is-dragging");
+      setTimeout(function () {
+        track.querySelectorAll(".portfolio-card").forEach(function (c) {
+          c.dataset.dragged = "false";
+        });
+      }, 50);
+    });
+
+    track.addEventListener("mousemove", function (e) {
+      if (!isDown) return;
+      e.preventDefault();
+      var x = e.pageX - track.offsetLeft;
+      var walk = (x - startX) * 1.4;
+      dragDist = Math.abs(walk);
+      if (dragDist > draggedThreshold) {
+        track.querySelectorAll(".portfolio-card").forEach(function (c) {
+          c.dataset.dragged = "true";
+        });
+      }
+      track.scrollLeft = scrollLeft - walk;
+    });
+
+    // Auto-scroll suave com pausa no hover
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayTimer = setInterval(function () {
+        if (isPointerInteracting) return;
+        var maxScroll = track.scrollWidth - track.clientWidth;
+        var amount = getScrollAmount();
+        if (track.scrollLeft >= maxScroll - 20) {
+          track.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          track.scrollBy({ left: amount, behavior: "smooth" });
+        }
+      }, 4500);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+    }
+
+    function resetAutoPlay() {
+      stopAutoPlay();
+      startAutoPlay();
+    }
+
+    // Pausa carrossel no mouseover / hover do cursor
+    track.addEventListener("mouseenter", function () {
+      isPointerInteracting = true;
+      stopAutoPlay();
+    });
+
+    track.addEventListener("mouseleave", function () {
+      isPointerInteracting = false;
+      startAutoPlay();
+    });
+
+    // Pausa ao tocar na tela (mobile)
+    track.addEventListener("touchstart", function () {
+      isPointerInteracting = true;
+      stopAutoPlay();
+    }, { passive: true });
+
+    track.addEventListener("touchend", function () {
+      setTimeout(function () {
+        isPointerInteracting = false;
+        startAutoPlay();
+      }, 3000);
+    }, { passive: true });
+
+    startAutoPlay();
   }
 
   function escapeHtml(str) {
@@ -185,6 +375,8 @@
         btn.setAttribute("aria-pressed", "true");
         currentFilter = btn.getAttribute("data-filter") || "all";
         renderPortfolio();
+        var track = document.getElementById("portfolio-track");
+        if (track) track.scrollTo({ left: 0, behavior: "smooth" });
       });
     });
   }
@@ -192,6 +384,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     initFilters();
     renderPortfolio();
+    initCarouselControls();
 
     // Sincroniza em tempo real se o painel adm for atualizado em outra aba
     window.addEventListener("storage", function (e) {
