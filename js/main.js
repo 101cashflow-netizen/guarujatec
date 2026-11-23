@@ -169,4 +169,33 @@
 
   var year = document.getElementById("year");
   if (year) year.textContent = String(new Date().getFullYear());
+
+  // Suporte a abrir o Agente IA diretamente via link ou URL (#chat ou ?chat=open)
+  function openAIAgent() {
+    var btn = document.getElementById("ai-agent-btn");
+    var container = document.getElementById("ai-agent-frame-container");
+    if (btn && container && !container.classList.contains("active")) {
+      btn.click();
+    }
+  }
+
+  // Qualquer link ou botão com href="#chat" ou data-open-chat abre o Agente de IA
+  document.querySelectorAll('a[href="#chat"], [data-open-chat]').forEach(function (el) {
+    el.addEventListener("click", function (e) {
+      e.preventDefault();
+      openAIAgent();
+    });
+  });
+
+  // Abrir automaticamente se a URL tiver #chat ou ?chat=open
+  if (window.location.hash === "#chat" || window.location.search.indexOf("chat=") !== -1) {
+    var chatCheckTimer = setInterval(function () {
+      var btn = document.getElementById("ai-agent-btn");
+      if (btn) {
+        openAIAgent();
+        clearInterval(chatCheckTimer);
+      }
+    }, 250);
+    setTimeout(function () { clearInterval(chatCheckTimer); }, 6000);
+  }
 })();
