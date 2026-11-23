@@ -86,7 +86,30 @@
     }
   ];
 
+  var liveProjects = null;
+
+  async function syncFromD1() {
+    try {
+      var res = await fetch("/api/projects", { cache: "no-store" });
+      if (res.ok) {
+        var data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          liveProjects = data;
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          } catch (e) {}
+          renderPortfolio();
+        }
+      }
+    } catch (err) {
+      // Falha silenciosa no ambiente local sem worker, usando fallback do localStorage
+    }
+  }
+
   function getProjects() {
+    if (liveProjects && Array.isArray(liveProjects) && liveProjects.length > 0) {
+      return liveProjects;
+    }
     var projects = DEFAULT_PROJECTS;
     try {
       var savedVersion = localStorage.getItem(VERSION_KEY);
@@ -396,6 +419,7 @@
     initFilters();
     renderPortfolio();
     initCarouselControls();
+    syncFromD1();
 
     // Sincroniza em tempo real se o painel adm for atualizado em outra aba
     window.addEventListener("storage", function (e) {

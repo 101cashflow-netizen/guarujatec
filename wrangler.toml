@@ -1,0 +1,8 @@
+name = "guarujatec"
+compatibility_date = "2026-11-01"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "guarujatec_portfolio_db"
+database_id = "a5631cd8-e584-4153-bd41-2a3e51fc4d99"

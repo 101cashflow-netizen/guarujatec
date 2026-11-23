@@ -3,6 +3,7 @@
 
   var STORAGE_KEY = "guarujatec_portfolio";
   var AUTH_KEY = "guarujatec_admin_auth";
+  var PWD_KEY = "guarujatec_admin_pwd";
   var DEFAULT_PASSWORD = "guarujatec";
 
   var DEFAULT_PROJECTS = [
@@ -93,6 +94,50 @@
     automacao: "Automação & IA"
   };
 
+  function getAdminPassword() {
+    return sessionStorage.getItem(PWD_KEY) || DEFAULT_PASSWORD;
+  }
+
+  // --- API CLOUDFLARE D1 ---
+  async function apiD1(action, payload) {
+    try {
+      var bodyData = Object.assign({ action: action }, payload || {});
+      var res = await fetch("/api/projects", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Password": getAdminPassword(),
+        },
+        body: JSON.stringify(bodyData),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (err) {
+      console.warn("D1 API não disponível (ambiente local ou offline):", err);
+    }
+    return null;
+  }
+
+  async function syncFromD1() {
+    try {
+      var res = await fetch("/api/projects?all=true", {
+        headers: { "X-Admin-Password": getAdminPassword() },
+        cache: "no-store",
+      });
+      if (res.ok) {
+        var data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          saveProjectsLocally(data);
+          updateStats(data);
+          renderProjectsList(data);
+        }
+      }
+    } catch (err) {
+      console.warn("Falha ao sincronizar admin do D1:", err);
+    }
+  }
+
   // --- AUTENTICAÇÃO ---
   function checkAuth() {
     var isAuth = sessionStorage.getItem(AUTH_KEY) === "true";
@@ -120,6 +165,7 @@
 
       if (pass === DEFAULT_PASSWORD || pass === "admin123") {
         sessionStorage.setItem(AUTH_KEY, "true");
+        sessionStorage.setItem(PWD_KEY, pass);
         checkAuth();
       } else {
         alert("Senha incorreta! Dica: a senha padrão é " + DEFAULT_PASSWORD);
@@ -131,6 +177,7 @@
     if (btnLogout) {
       btnLogout.addEventListener("click", function () {
         sessionStorage.removeItem(AUTH_KEY);
+        sessionStorage.removeItem(PWD_KEY);
         checkAuth();
       });
     }
@@ -168,21 +215,26 @@
     return projects;
   }
 
-  function saveProjects(projects) {
+  function saveProjectsLocally(projects) {
     try {
-      // Re-ordena e re-numera sequencialmente antes de persistir
       projects.sort(function (a, b) {
         return (Number(a.order) || 999) - (Number(b.order) || 999);
       });
       projects.forEach(function (p, i) {
         p.order = i + 1;
       });
-
       localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
-      updateStats(projects);
-      renderProjectsList(projects);
-    } catch (e) {
-      alert("Erro ao salvar no navegador: " + e.message);
+    } catch (e) {}
+  }
+
+  function saveProjects(projects, targetProject) {
+    saveProjectsLocally(projects);
+    updateStats(projects);
+    renderProjectsList(projects);
+
+    // Persiste no Cloudflare D1
+    if (targetProject) {
+      apiD1("save", { project: targetProject });
     }
   }
 
@@ -210,7 +262,16 @@
       p.order = i + 1;
     });
 
-    saveProjects(projects);
+    saveProjectsLocally(projects);
+    updateStats(projects);
+    renderProjectsList(projects);
+
+    // Envia atualização de ordem em lote para o Cloudflare D1
+    apiD1("reorder", {
+      orders: projects.map(function (p) {
+        return { id: p.id, order: p.order };
+      }),
+    });
   }
 
   // --- RENDERIZAÇÃO DA LISTA ---
@@ -335,7 +396,7 @@
         var p = projects.find(function (item) { return item.id === id; });
         if (p) {
           p.active = checked;
-          saveProjects(projects);
+          saveProjects(projects, p);
         }
       });
     });
@@ -355,7 +416,10 @@
         if (confirm("Tem certeza que deseja excluir este projeto da vitrine?")) {
           var projects = loadProjects();
           var updated = projects.filter(function (item) { return item.id !== id; });
-          saveProjects(updated);
+          saveProjectsLocally(updated);
+          updateStats(updated);
+          renderProjectsList(updated);
+          apiD1("delete", { id: id });
         }
       });
     });
@@ -476,6 +540,7 @@
         .filter(function (t) { return t.length > 0; });
 
       var projects = loadProjects();
+      var savedProj = null;
 
       if (id) {
         // Atualizar existente
@@ -490,10 +555,11 @@
           existing.link = link;
           existing.tags = tags;
           existing.active = active;
+          savedProj = existing;
         }
       } else {
         // Adicionar novo
-        var newProj = {
+        savedProj = {
           id: "proj-" + Date.now(),
           order: order,
           title: title,
@@ -506,10 +572,10 @@
           active: active,
           featured: false
         };
-        projects.push(newProj);
+        projects.push(savedProj);
       }
 
-      saveProjects(projects);
+      saveProjects(projects, savedProj);
       closeModal();
     });
   }
@@ -552,13 +618,20 @@
         if (!file) return;
 
         var reader = new FileReader();
-        reader.onload = function (evt) {
+        reader.onload = async function (evt) {
           try {
             var imported = JSON.parse(evt.target.result);
             if (Array.isArray(imported)) {
-              if (confirm("Importar " + imported.length + " projetos e substituir a lista atual?")) {
-                saveProjects(imported);
-                alert("Projetos importados com sucesso!");
+              if (confirm("Importar " + imported.length + " projetos e sincronizar com o banco D1?")) {
+                saveProjectsLocally(imported);
+                updateStats(imported);
+                renderProjectsList(imported);
+
+                // Envia para o Cloudflare D1
+                for (var i = 0; i < imported.length; i++) {
+                  await apiD1("save", { project: imported[i] });
+                }
+                alert("Projetos importados e sincronizados com a nuvem!");
               }
             } else {
               alert("Arquivo inválido: o formato precisa ser um array de projetos.");
@@ -574,9 +647,15 @@
     // Restaurar Padrão
     var btnReset = document.getElementById("btn-reset-default");
     if (btnReset) {
-      btnReset.addEventListener("click", function () {
-        if (confirm("Tem certeza que deseja restaurar os 6 projetos originais da Guarujá Tec?")) {
-          saveProjects(DEFAULT_PROJECTS);
+      btnReset.addEventListener("click", async function () {
+        if (confirm("Tem certeza que deseja restaurar os 6 projetos originais da Guarujá Tec no banco D1?")) {
+          saveProjectsLocally(DEFAULT_PROJECTS);
+          updateStats(DEFAULT_PROJECTS);
+          renderProjectsList(DEFAULT_PROJECTS);
+
+          for (var i = 0; i < DEFAULT_PROJECTS.length; i++) {
+            await apiD1("save", { project: DEFAULT_PROJECTS[i] });
+          }
           alert("Vitrine restaurada para o padrão com sucesso!");
         }
       });
@@ -599,6 +678,7 @@
     renderProjectsList(projects);
     initModal();
     initTools();
+    syncFromD1();
   }
 
   document.addEventListener("DOMContentLoaded", function () {
