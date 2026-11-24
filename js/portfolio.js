@@ -3,86 +3,73 @@
 
   var STORAGE_KEY = "guarujatec_portfolio";
   var VERSION_KEY = "guarujatec_portfolio_version";
-  var CURRENT_VERSION = "20261123_v3";
+  var CURRENT_VERSION = "20261124_v4";
 
   var DEFAULT_PROJECTS = [
     {
-      id: "proj-1",
+      id: "proj-guarujatec",
       order: 1,
+      title: "Guarujá Tec — Digital IA Marketing",
+      category: "sites",
+      categoryLabel: "Site & IA Marketing",
+      description: "Sites rápidos de alta conversão, perfil completo no Google e atendimento automatizado com Inteligência Artificial para empresas de Guarujá e Baixada Santista.",
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+      link: "https://guarujatec.pages.dev",
+      tags: ["Sites que Vendem", "IA no WhatsApp", "Google Meu Negócio", "Automação"],
+      active: true,
+      featured: true
+    },
+    {
+      id: "proj-djcell",
+      order: 2,
+      title: "iPhones DJ Cell • A Referência Apple no Guarujá",
+      category: "ecommerce",
+      categoryLabel: "Loja Virtual",
+      description: "Catálogo vitrine de iPhones lacrados e seminovos com cálculo em até 18x no cartão, garantia e pedidos enviados direto para o WhatsApp na Enseada, Guarujá.",
+      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02560?auto=format&fit=crop&w=800&q=80",
+      link: "https://djcell.pages.dev",
+      tags: ["Catálogo Vitrine", "Smartphones", "WhatsApp Direct", "E-commerce"],
+      active: true,
+      featured: true
+    },
+    {
+      id: "proj-mecamatic",
+      order: 3,
       title: "Mecamatic CRM & Gestão Web",
       category: "sistemas",
       categoryLabel: "Sistema Web",
-      description: "Sistema completo para gestão de ordens de serviço, clientes, estoque e dashboards financeiros em tempo real para empresas automotivas e de serviços.",
+      description: "Sistema moderno para gestão de ordens de serviço, clientes, estoque e relatórios operacionais em tempo real para oficinas automotivas e prestadores de serviço.",
       image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-      tags: ["Painel Web", "Dashboard", "Gestão", "Relatórios"],
-      link: "https://guarujatec.com.br",
+      link: "https://mecamaticsite.pages.dev",
+      tags: ["Painel Web", "Gestão de OS", "Dashboard", "Relatórios"],
       active: true,
       featured: true
     },
     {
-      id: "proj-2",
-      order: 2,
-      title: "FitFuel E-commerce & Suplementos",
-      category: "ecommerce",
-      categoryLabel: "Loja Virtual",
-      description: "E-commerce moderno de alta performance com catálogo intuitivo, cálculo dinâmico de frete, múltiplos meios de pagamento e finalização de compras por WhatsApp.",
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-      tags: ["E-commerce", "Carrinho", "Checkout Rápido", "SEO"],
-      link: "https://guarujatec.com.br",
-      active: true,
-      featured: true
-    },
-    {
-      id: "proj-3",
-      order: 3,
-      title: "Naty Gomes Personal Trainer",
-      category: "sites",
-      categoryLabel: "Site Profissional",
-      description: "Landing page de alta conversão para serviços de personal trainer no Guarujá, integrada ao WhatsApp e totalmente otimizada para buscas no Google Meu Negócio.",
-      image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80",
-      tags: ["Design Exclusivo", "SEO Local", "Alta Velocidade", "Mobile"],
-      link: "https://guarujatec.com.br",
-      active: true,
-      featured: true
-    },
-    {
-      id: "proj-4",
+      id: "proj-lamiapizza",
       order: 4,
-      title: "Agente IA Atendimento 24h WhatsApp",
-      category: "automacao",
-      categoryLabel: "Automação & IA",
-      description: "Assistente inteligente com IA conectado ao WhatsApp para qualificação automática de leads, agendamento de reuniões e suporte 24 horas por dia.",
-      image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
-      tags: ["Chatbot IA", "WhatsApp API", "Qualificação", "Follow-up"],
-      link: "https://guarujatec.com.br",
-      active: true,
-      featured: false
-    },
-    {
-      id: "proj-5",
-      order: 5,
-      title: "DJ Cell Imports & Acessórios",
+      title: "La Mia Pizza • Cardápio Digital & Delivery",
       category: "ecommerce",
-      categoryLabel: "Loja Virtual",
-      description: "Catálogo vitrine com exibição de modelos, cálculo de parcelas, variações de cores/capacidade e pedidos diretos encaminhados para a equipe comercial.",
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02560?auto=format&fit=crop&w=800&q=80",
-      tags: ["Vitrine Virtual", "Smartphones", "WhatsApp Direct", "Catálogo"],
-      link: "https://guarujatec.com.br",
+      categoryLabel: "Cardápio & Pedidos",
+      description: "Cardápio digital moderno e interativo para pizzaria e delivery. Pedidos online rápidos, seleção de sabores/adicionais e envio direto para o WhatsApp sem comissões.",
+      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80",
+      link: "https://lamiapizza-f50.pages.dev",
+      tags: ["Cardápio Digital", "Delivery", "WhatsApp Pedidos", "Pizzaria"],
       active: true,
-      featured: false
+      featured: true
     },
     {
-      id: "proj-6",
-      order: 6,
-      title: "Clínica Odonto Santos & Guarujá",
-      category: "sites",
-      categoryLabel: "Site Profissional",
-      description: "Presença digital completa e otimização para SEO Local, aumentando em mais de 180% a captação de pacientes particulares via buscas locais do Google.",
-      image: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=800&q=80",
-      tags: ["Google Meu Negócio", "SEO Local", "Autoridade", "Conversão"],
-      link: "https://guarujatec.com.br",
+      id: "proj-conecta-guaruja",
+      order: 5,
+      title: "Conecta Guarujá • Guia Comercial Oficial",
+      category: "sistemas",
+      categoryLabel: "Portal & Guia Local",
+      description: "Guia comercial inteligente e portal de negócios do Guarujá. Destaque para comércios locais, quiosques, pousadas e prestadores de serviços da Baixada Santista.",
+      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+      link: "https://conecta-guaruja.pages.dev",
+      tags: ["Guia Comercial", "Negócios Locais", "SEO Local", "Portal Web"],
       active: true,
-      featured: false
+      featured: true
     }
   ];
 
